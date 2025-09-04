@@ -296,6 +296,10 @@
     color: #fff;
     
 }
+.profile-box a{
+    color: #ff0000;
+    text-decoration: none;
+}
 
 .profile-title{
     margin-bottom: 15px;

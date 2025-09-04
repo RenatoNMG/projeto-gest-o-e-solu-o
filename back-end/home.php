@@ -153,7 +153,7 @@ $logoPath = ($logo && file_exists($logo->getCaminho()))
                             </div>
                         </div>
                         <a href="acoes/Adicionarsubmodulo.php?id_modulo=<?= $_GET['id_modulo']; ?>"><button class="profile-edit-button">Editar</button></a>
-                        
+                        <a href="../back-end/home.php"><button type="button">Voltar</button></a>
                     </div>
                     <div class="chart-container">
                         <h2 class="chart-title">Gráfico de Vendas</h2>

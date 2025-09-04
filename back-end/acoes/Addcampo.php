@@ -74,6 +74,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <input type="hidden" name="id_empresa" value="<?= $_SESSION['id_empresa']; ?>">
 
         <button type="submit">Cadastrar Campo</button>
+        <a href="../home.php"><button type="button">Voltar</button></a>
+
     </form>
 
     

@@ -1,6 +1,8 @@
 <?php
+// A sessão DEVE ser a primeira coisa no script.
 session_start();
 
+// Bloco de processamento do formulário
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $_POST['email'] ?? '';
     $senha = $_POST['senha'] ?? '';
@@ -13,47 +15,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $empresaDAO = new EmpresaDAO();
         $empresa = $empresaDAO->buscarEmpresaPorEmail($email);
 
-        
-
         if ($empresa && password_verify($senha, $empresa->getSenha())) {
+            // Sucesso no login
             $_SESSION['token'] = $empresa->getToken();
-            header('Location: ../home.php');
             $_SESSION['id_empresa'] = $empresa->getIdEmpresa();
+            header('Location: ../home.php');
             exit();
         } else {
-            echo "Email ou senha inválidos.";
-            
+            // Erro de credenciais
+            $_SESSION['error_message'] = "Email ou senha inválidos.";
+            header('Location: Login.php');
+            exit();
         }
     } else {
-        echo "Todos os campos são obrigatórios.";
-        
-        
+        // Erro de campos vazios
+        $_SESSION['error_message'] = "Todos os campos são obrigatórios.";
+        header('Location: Login.php');
+        exit();
     }
 }
-
 ?>
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Login</title>
     <link rel="stylesheet" href="../../css/login.css">
 </head>
 <body>
-    <form action="Login.php" method="POST">
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required>
+
+    <div class="login-container">
+        <form action="Login.php" method="POST">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+            
+            <label for="senha">Senha:</label>
+            <input type="password" id="senha" name="senha" required>
+            
+            <button type="submit">Entrar</button>
+        </form>
+
+        <?php
+            // Bloco PHP para exibir a mensagem de erro (agora abaixo do form)
+            if (isset($_SESSION['error_message'])) {
+                echo '<div class="error-message">' . $_SESSION['error_message'] . '</div>';
+                unset($_SESSION['error_message']); // Limpa a mensagem para não mostrar de novo
+            }
+        ?>
         
-        <label for="senha">Senha:</label>
-        <input type="password" id="senha" name="senha" required>
-        
-        <button type="submit">Entrar</button>
-        <a href="Cadastro.php">Cadastrar Empresa
-    </a>
-    </form>
-    
-    
+        <a href="Cadastro.php">Cadastrar Empresa</a>
+        <a href="projeto-gest-o-e-solu-o/index.html">Voltar</a>
+    </div>
+
 </body>
 </html>

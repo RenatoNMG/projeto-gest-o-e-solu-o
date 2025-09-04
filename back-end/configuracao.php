@@ -79,7 +79,7 @@ $logoPath = ($logo && file_exists($logo->getCaminho()))
         <header class="header">
             <h1>Configurações</h1>
             <div class="menu-icon">
-                <a href="informacoes.html"><i class="fa fa-info-circle"></i></a>
+                <a href="informacoes.php"><i class="fa fa-info-circle"></i></a>
             </div>
 
         </header>
@@ -92,9 +92,9 @@ $logoPath = ($logo && file_exists($logo->getCaminho()))
                     </div>
 
 
-                    <div class="profile-text">
-                        <span class="profile-name">Freedom</span>
-                        <span class="profile-email">freedom@gmail.com</span>
+                   <div class="profile-text">
+                        <span class="profile-name"><?= $empresa->getNome(); ?></span>
+                        <span class="profile-email"><?= $empresa->getEmail(); ?></span>
                     </div>
                 </div>
                 <a href="atualizatLogo.php"><button class="edit-button">
@@ -109,33 +109,19 @@ $logoPath = ($logo && file_exists($logo->getCaminho()))
                     <input type="text" name="nomeEmpresa" value="<?= $empresa->getNome(); ?>" class="input-field">
                 </div>
                 <div class="form-group">
-                    <label for="gmail">Gmail</label>
+                    <label for="gmail">Email</label>
                     <input type="text" name="gmail" value="<?= $empresa->getEmail(); ?>" class="input-field">
                 </div>
 
                 <button type="submit" class="save-button">Salvar</button>
 
             </form>
-
-            <a href="acoes/sair.php"><i class="ai-door">Sair</i></a>
             <div class="button-group">
-
+                <a href="acoes/sair.php"><i class="ai-door">Sair</i></a>
                 <a href="home.php"><i class="save-button">Voltar</i></a>
             </div>
     </div>
 
-    <!-- <button class="save-button">
-    <i class="fas fa-pencil-alt"></i> Salvar
-</button>
-
-        </main>
-    </div>
-
-    <footer class="footer">
-        <p>&copy; 2025 Freedom. Todos os direitos reservados.</p>
-    </footer>
-
-    <script src="../js/configuracao.js"></script> -->
 </body>
 
 </html>
