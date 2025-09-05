@@ -307,6 +307,7 @@ $data = array_values($graficoValores);
             });
         });
     </script>
+    
 
 </body>
 
