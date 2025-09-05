@@ -37,14 +37,14 @@ if (isset($_GET['id_modulo'])) {
                         }
                         ?>
                     </h4>
-                    <a href="Adicionarvalor.php?id_submodulo=<?= $submodulo->getId() ?>&id_modulo=<?= $_GET['id_modulo']?>" class="btn-submit">Adicionar Valor</a>
+                    <a href="Adicionarvalor.php?id_submodulo=<?= $submodulo->getId() ?>&id_modulo=<?= $_GET['id_modulo']?>" class="btn-submit">Adicionar Valor do Campo</a>
                 </div>
             <?php endforeach; ?>
         </div>
 
         <div class="action-links">
             <a href="../home.php?id_modulo=<?= $_GET['id_modulo'] ?>" class="btn-link">Voltar</a>
-            <a href="Adicionaritensubmodulo.php?id_modulo=<?= $_GET['id_modulo'] ?>" class="btn-link">Adicionar Submódulo</a>
+            <a href="Adicionaritensubmodulo.php?id_modulo=<?= $_GET['id_modulo'] ?>" class="btn-link">Adicionar Novo Campo</a>
         </div>
     </div>
 </body>
