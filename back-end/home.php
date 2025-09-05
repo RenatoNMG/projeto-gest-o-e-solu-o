@@ -115,8 +115,6 @@ $logoPath = ($logo && file_exists($logo->getCaminho()))
                 <i class="fas fa-search"></i>
                 <input type="text" placeholder="Pesquisa">
             </div>
-
-
         </header>
 
 
@@ -199,6 +197,7 @@ $logoPath = ($logo && file_exists($logo->getCaminho()))
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
+
         document.addEventListener('DOMContentLoaded', () => {
             const toggleBtn = document.querySelector('.menu-toggle');
             const sidebar = document.querySelector('.sidebar');
@@ -237,28 +236,28 @@ $logoPath = ($logo && file_exists($logo->getCaminho()))
 
 
         <?php
-// Pegar submodulos com itens
-$submodulos = $submoduloDAO->getSubmodulosComItens($_GET['id_modulo']);
+        // Pegar submodulos com itens
+        $submodulos = $submoduloDAO->getSubmodulosComItens($_GET['id_modulo']);
 
-// Array para agrupar nomes iguais
-$graficoValores = [];
+        // Array para agrupar nomes iguais
+        $graficoValores = [];
 
-foreach ($submodulos as $submodulo) {
-    $nome = $submodulo->getNomeSubmodulo();
-    $valor = $submodulo->getNomeItem();
+        foreach ($submodulos as $submodulo) {
+            $nome = $submodulo->getNomeSubmodulo();
+            $valor = $submodulo->getNomeItem();
 
-    if (is_numeric($valor)) {
-        if (!isset($graficoValores[$nome])) {
-            $graficoValores[$nome] = 0;
+            if (is_numeric($valor)) {
+                if (!isset($graficoValores[$nome])) {
+                    $graficoValores[$nome] = 0;
+                }
+                $graficoValores[$nome] += $valor; // soma os valores iguais
+            }
         }
-        $graficoValores[$nome] += $valor; // soma os valores iguais
-    }
-}
 
-// Separar labels e data para o Chart.js
-$labels = array_keys($graficoValores);
-$data = array_values($graficoValores);
-?>
+        // Separar labels e data para o Chart.js
+        $labels = array_keys($graficoValores);
+        $data = array_values($graficoValores);
+        ?>
 
 
         document.addEventListener("DOMContentLoaded", () => {
