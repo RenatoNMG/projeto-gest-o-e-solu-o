@@ -47,33 +47,69 @@
     gap: 140px;
 }
 
+/* --- Search Bar Profissional --- */
 .search-bar {
     display: flex;
     align-items: center;
-    background-color: #91A1A8;
-    padding: 5px 10px;
-    border-radius: 20px;
+    background-color: #f1f1f1;
+    padding: 6px 12px;
+    border-radius: 25px;
     width: 300px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    transition: all 0.3s ease;
 }
 
 .search-bar i {
-    color: #393F42;
+    color: #333;
+    font-size: 18px;
+    margin-right: 8px;
+}
+
+.search-bar form {
+    display: flex;
+    flex: 1;
+    align-items: center;
 }
 
 .search-bar input {
-    background: transparent;
-    border: none;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 20px 0 0 20px;
     outline: none;
-    color: #ecf0f1;
-    margin-left: 10px;
+    color: #333;
+    padding: 8px 12px;
     font-size: 16px;
     width: 100%;
+    transition: all 0.3s ease;
 }
 
 .search-bar input::placeholder {
-    color: #393F42;
+    color: #888;
+    font-style: italic;
 }
 
+.search-bar input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 6px rgba(0,123,255,0.5);
+}
+
+/* Botão buscar na barra */
+.search-bar button {
+    border: none;
+    background-color: #007bff;
+    color: #fff;
+    padding: 8px 14px;
+    border-radius: 0 20px 20px 0;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.search-bar button:hover {
+    background-color: #0056b3;
+}
+
+/* --- Title --- */
 .title h1 {
     font-family: Inter, sans-serif;
     font-size: 40px;
@@ -123,7 +159,6 @@
     width: 240px;
     height: calc(100% - 70px);
     transform: translateX(0);
-    /* aberta por padrão */
     transition: transform 0.4s ease-in-out;
     z-index: 100;
 }
@@ -232,8 +267,7 @@
     align-items: center;
     justify-content: center;
     padding: 20px;
-    background: linear-gradient(90deg, #91A1A8 0%, #113048 100%);
-    color: #fff;
+    background: #113048;
     font-weight: bold;
     text-decoration: none;
     border-radius: 10px;
@@ -241,7 +275,7 @@
 }
 
 .main-content li a:hover {
-    background: linear-gradient(90deg, #5b7c8d 0%, #0f2433 100%);
+    background: #0f2433 100%;
 }
 
 /* Botão Adicionar módulo */
@@ -264,7 +298,7 @@
 /* ====== PROFILE ====== */
 .profile-box {
     padding: 20px;
-    background: linear-gradient(145deg, #2c3e50, #34495e);
+    background: #34495e;
     border-radius: 12px;
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
     color: #fff;
@@ -319,7 +353,7 @@
     flex: 1 1 calc(33% - 20px);
     border-radius: 10px;
     padding: 20px;
-    background: linear-gradient(90deg, #91A1A8 0%, #113048 100%);
+    background:  #113048 100%;
     color: #fff;
     font-weight: bold;
     text-align: center;
@@ -347,18 +381,20 @@
 @media (max-width: 1024px) {
     .sidebar {
         transform: translateX(-100%);
-        /* começa fechada no tablet */
     }
 
-    /* Sidebar aberta no celular */
     .sidebar.open {
         transform: translateX(0) !important;
     }
 
-
     .main-content {
         margin-left: 0;
     }
+
+    .buttonelogo {
+    display: flex;
+    gap: 15px;
+}
 }
 
 @media (max-width: 768px) {
@@ -368,18 +404,9 @@
         margin: 0 auto;
     }
 
-    .main-content {
-        margin-left: 0;
-    }
 
-    .main-content ul {
-        flex-direction: column;
-        gap: 15px;
-    }
+   
 
-    .main-content li {
-        flex: 1 1 100%;
-    }
 
     .profile-grid {
         grid-template-columns: 1fr;

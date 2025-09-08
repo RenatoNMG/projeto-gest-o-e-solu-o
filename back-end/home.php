@@ -1,6 +1,5 @@
 <?php
 session_start();
-
 if (!isset($_SESSION['token'])) {
     header('Location: cadastro/Cadastro.php');
     exit();
@@ -22,6 +21,7 @@ require_once __DIR__ . '/dao/SubModuloDAO.php';
 require_once __DIR__ . '/model/SubModulo.php';
 require_once __DIR__ . '/dao/ValorDAO.php';
 require_once __DIR__ . '/model/Valor.php';
+require_once __DIR__ . '/acoes/Pesquisa.php'; // adicionei sua classe de pesquisa
 
 $submoduloDAO = new SubmoduloDAO();
 $valorDAO = new ValorDAO();
@@ -31,17 +31,24 @@ $cardsDAO = new CardDAO();
 $moduloDAO = new ModuloDAO();
 $empresaDAO = new EmpresaDAO();
 $logoController = new ImagemController();
+$pesquisa = new Pesquisa();
 
 $logo = $logoController->getImagemPorEmpresa($_SESSION['id_empresa']);
 $campos = $camposDAO->listarCamposPorEmpresa($_SESSION['id_empresa']);
 $empresa = $empresaDAO->buscarEmpresaPorId($_SESSION['id_empresa']);
 
-$cards = [];
 $modulos = [];
-$dados = [];
 $modulo = [];
 $submodulosComValores = [];
+$resultadosPesquisa = [];
 
+// pesquisa via GET
+if (isset($_GET['pesquisa'])) {
+    $termo = trim($_GET['pesquisa']);
+    $resultadosPesquisa = $pesquisa->buscarTodos($_SESSION['id_empresa'], $termo);
+}
+
+// módulos e submódulos
 if (isset($_GET['id'])) {
     $id_campo = $_GET['id'];
     $modulos = $moduloDAO->listarModulosPorCampo($id_campo, $_SESSION['id_empresa']);
@@ -53,17 +60,12 @@ if (isset($_GET['id_modulo'])) {
 
     foreach ($submodulos as $submodulo) {
         $valores = $valorDAO->getBySubModulos($submodulo->getId());
-
         $somaValores = 0;
         $textoValores = [];
         foreach ($valores as $valor) {
-            if (is_numeric($valor->getValor())) {
-                $somaValores += $valor->getValor();
-            } else {
-                $textoValores[] = $valor->getValor();
-            }
+            if (is_numeric($valor->getValor())) $somaValores += $valor->getValor();
+            else $textoValores[] = $valor->getValor();
         }
-
         $submodulosComValores[] = [
             'nome' => $submodulo->getNome(),
             'valor' => $somaValores,
@@ -71,29 +73,23 @@ if (isset($_GET['id_modulo'])) {
         ];
     }
 
-    // monta dados para o gráfico
+    // gráfico
     $submodulosGrafico = $submoduloDAO->getSubmodulosComItens($_GET['id_modulo']);
     $graficoValores = [];
-
     foreach ($submodulosGrafico as $submodulo) {
         $nome = $submodulo->getNomeSubmodulo();
         $valor = $submodulo->getNomeItem();
-
         if (is_numeric($valor)) {
-            if (!isset($graficoValores[$nome])) {
-                $graficoValores[$nome] = 0;
-            }
+            if (!isset($graficoValores[$nome])) $graficoValores[$nome] = 0;
             $graficoValores[$nome] += $valor;
         }
     }
-
     $labels = array_keys($graficoValores);
     $data = array_values($graficoValores);
 }
 
-// Logo fallback
-$logoPath = ($logo && file_exists($logo->getCaminho()))
-    ? $logo->getCaminho()
+// logo fallback
+$logoPath = ($logo && file_exists($logo->getCaminho())) ? $logo->getCaminho()
     : "https://static.vecteezy.com/ti/vetor-gratis/p1/5538023-forma-simples-montanha-preto-branco-circulo-logo-simbolo-icone-design-grafico-ilustracao-ideia-criativo-vetor.jpg";
 ?>
 
@@ -106,30 +102,26 @@ $logoPath = ($logo && file_exists($logo->getCaminho()))
     <title>Gestão & Solução</title>
     <link rel="stylesheet" href="../css/styles3.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="../css/graficos.css">
 </head>
 
 <body>
     <div class="container">
         <header class="header">
             <div class="buttonelogo">
-                <div class="menu-toggle">
-                    <i class="fas fa-bars"></i>
-                </div>
+                <div class="menu-toggle"><i class="fas fa-bars"></i></div>
                 <div class="logo">
-                    <a href="configuracao.php">
-                        <img src="<?= $logoPath ?>" alt="Logo">
-                    </a>
+                    <a href="configuracao.php"><img src="<?= $logoPath ?>" alt="Logo"></a>
                 </div>
             </div>
-
-
             <div class="title">
                 <h1><?= $empresa ? $empresa->getNome() : "Gestão & Solução" ?></h1>
             </div>
             <div class="search-bar">
                 <i class="fas fa-search"></i>
-                <input type="text" placeholder="Pesquisa">
+                <form method="GET">
+                    <input type="text" name="pesquisa" placeholder="Pesquisa" value="<?= isset($termo) ? htmlspecialchars($termo) : '' ?>">
+                    <button type="submit">Buscar</button>
+                </form>
             </div>
         </header>
 
@@ -145,16 +137,13 @@ $logoPath = ($logo && file_exists($logo->getCaminho()))
                     </nav>
                 </a>
             <?php endforeach; ?>
-            <div class="add-button">
-                <a href="acoes/Addcampo.php"><i class="fas fa-plus-circle"></i></a>
-            </div>
+            <div class="add-button"><a href="acoes/Addcampo.php"><i class="fas fa-plus-circle"></i></a></div>
         </aside>
 
         <main class="main-content">
-            <!-- modulos -->
             <ul>
-                <?php foreach ($modulos as $modulo): ?>
-                    <li><a href="?id_modulo=<?= $modulo->getId(); ?>"><?= $modulo->getNome(); ?></a></li>
+                <?php foreach ($modulos as $moduloItem): ?>
+                    <li><a href="?id_modulo=<?= $moduloItem->getId(); ?>"><?= $moduloItem->getNome(); ?></a></li>
                 <?php endforeach; ?>
             </ul>
 
@@ -162,7 +151,6 @@ $logoPath = ($logo && file_exists($logo->getCaminho()))
                 <?php if (isset($_GET['id_modulo'])): ?>
                     <div class="profile-box">
                         <h2 class="profile-title"><?= $modulo->getNome(); ?></h2>
-
                         <div class="profile-grid">
                             <?php
                             $submodulos = $submoduloDAO->getPorIdModulo($_GET['id_modulo']);
@@ -173,15 +161,12 @@ $logoPath = ($logo && file_exists($logo->getCaminho()))
                                     <label><?= $submodulo->getNome(); ?></label>
                                     <input type="text" value="<?php
                                                                 $valoresText = [];
-                                                                foreach ($valores as $valor) {
-                                                                    $valoresText[] = $valor->getValor();
-                                                                }
+                                                                foreach ($valores as $valor) $valoresText[] = $valor->getValor();
                                                                 echo implode(" | ", $valoresText);
                                                                 ?>" readonly>
                                 </div>
                             <?php endforeach; ?>
                         </div>
-
                         <a href="acoes/Adicionarsubmodulo.php?id_modulo=<?= $_GET['id_modulo']; ?>">
                             <button class="profile-edit-button">Editar</button>
                         </a>
@@ -194,89 +179,89 @@ $logoPath = ($logo && file_exists($logo->getCaminho()))
                 <?php endif; ?>
             </div>
 
-            <?php if (isset($_GET['id'])): ?>
-                <a href="acoes/Adicionarmodulo.php?id_campo=<?= $_GET['id']; ?>">Adicionar</a>
+            <?php if (!empty($resultadosPesquisa)): ?>
+                <div class="modal fade show" style="display:block; background-color: rgba(0,0,0,0.5);" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content text-dark">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Resultados da Pesquisa</h5>
+                                <a href="home.php" class="btn-close"></a>
+                            </div>
+                            <div class="modal-body">
+                                <ul>
+                                    <?php foreach ($resultadosPesquisa as $res): ?>
+                                        <li>
+                                            <a href="?id_modulo=<?= $res['id_modulo'] ?>">
+                                                <?= htmlspecialchars($res['nome']) ?>
+                                            </a>
+                                        </li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             <?php endif; ?>
         </main>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <?php if (isset($_GET['id_modulo'])): ?>
+        <script>
+            const ctx = document.getElementById('myChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: <?= json_encode($labels) ?>,
+                    datasets: [{
+                        label: 'Média',
+                        data: <?= json_encode($data) ?>,
+                        backgroundColor: 'rgba(0, 13, 131, 0.78)',
+                        borderColor: 'rgb(214, 18, 0)',
+                        borderWidth: 2,
+                        borderRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true
+                }
+            });
+        </script>
+    <?php endif; ?>
 
+    <!-- Script do Toggle da Sidebar -->
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+   document.addEventListener('DOMContentLoaded', () => {
     const toggleBtn = document.querySelector('.menu-toggle');
     const sidebar = document.querySelector('.sidebar');
 
-    toggleBtn.addEventListener('click', () => {
+    // Função para alternar sidebar
+    const toggleSidebar = () => {
         if (window.innerWidth <= 1024) {
-            sidebar.classList.toggle('open'); // alterna no celular
+            sidebar.classList.toggle('open'); // mobile/tablet
         } else {
-            sidebar.classList.toggle('closed'); // alterna no desktop
+            sidebar.classList.toggle('closed'); // desktop
         }
-    });
+    };
 
-    // opcional: fechar sidebar ao redimensionar
-    window.addEventListener('resize', () => {
+    toggleBtn.addEventListener('click', toggleSidebar);
+
+    // Ajusta sidebar ao redimensionar
+    const ajustarSidebar = () => {
         if (window.innerWidth > 1024) {
             sidebar.classList.remove('open');
-            sidebar.classList.remove('closed'); // garante estado desktop
         } else {
-            sidebar.classList.remove('closed'); // garante estado mobile fechado
+            sidebar.classList.remove('closed');
         }
-    });
+    };
+
+    window.addEventListener('resize', ajustarSidebar);
+
+    // Inicializa sidebar corretamente ao carregar
+    ajustarSidebar();
 });
 
     </script>
 
-    <?php if (isset($_GET['id_modulo'])): ?>
-        <script>
-            document.addEventListener("DOMContentLoaded", () => {
-                const ctx = document.getElementById('myChart').getContext('2d');
-                new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: <?= json_encode($labels) ?>,
-                        datasets: [{
-                            label: 'Média',
-                            data: <?= json_encode($data) ?>,
-                            backgroundColor: 'rgba(0, 13, 131, 0.78)',
-                            borderColor: 'rgb(214, 18, 0)',
-                            borderWidth: 2,
-                            borderRadius: 5
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: {
-                                labels: {
-                                    color: "#fff"
-                                }
-                            }
-                        },
-                        scales: {
-                            x: {
-                                ticks: {
-                                    color: "#fff"
-                                },
-                                grid: {
-                                    color: "rgba(255,255,255,0.2)"
-                                }
-                            },
-                            y: {
-                                ticks: {
-                                    color: "#fff"
-                                },
-                                grid: {
-                                    color: "rgba(255,255,255,0.2)"
-                                }
-                            }
-                        }
-                    }
-                });
-            });
-        </script>
-    <?php endif; ?>
 </body>
-
 </html>
