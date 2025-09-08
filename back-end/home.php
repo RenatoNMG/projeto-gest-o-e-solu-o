@@ -1,5 +1,4 @@
 <?php
-
 session_start();
 
 if (!isset($_SESSION['token'])) {
@@ -41,7 +40,7 @@ $cards = [];
 $modulos = [];
 $dados = [];
 $modulo = [];
-$submodulosComValores = []; // array que vai armazenar submodulos com valores somados
+$submodulosComValores = [];
 
 if (isset($_GET['id'])) {
     $id_campo = $_GET['id'];
@@ -50,11 +49,8 @@ if (isset($_GET['id'])) {
 
 if (isset($_GET['id_modulo'])) {
     $modulo = $moduloDAO->getById($_GET['id_modulo']);
-
-    // Puxar todos os submodulos do módulo
     $submodulos = $submoduloDAO->getPorIdModulo($_GET['id_modulo']);
 
-    // Agrupar e somar valores por submodulo
     foreach ($submodulos as $submodulo) {
         $valores = $valorDAO->getBySubModulos($submodulo->getId());
 
@@ -70,19 +66,36 @@ if (isset($_GET['id_modulo'])) {
 
         $submodulosComValores[] = [
             'nome' => $submodulo->getNome(),
-            'valor' => $somaValores,              // soma valores numéricos
-            'texto' => implode(" | ", $textoValores) // concatena textos
+            'valor' => $somaValores,
+            'texto' => implode(" | ", $textoValores)
         ];
     }
+
+    // monta dados para o gráfico
+    $submodulosGrafico = $submoduloDAO->getSubmodulosComItens($_GET['id_modulo']);
+    $graficoValores = [];
+
+    foreach ($submodulosGrafico as $submodulo) {
+        $nome = $submodulo->getNomeSubmodulo();
+        $valor = $submodulo->getNomeItem();
+
+        if (is_numeric($valor)) {
+            if (!isset($graficoValores[$nome])) {
+                $graficoValores[$nome] = 0;
+            }
+            $graficoValores[$nome] += $valor;
+        }
+    }
+
+    $labels = array_keys($graficoValores);
+    $data = array_values($graficoValores);
 }
 
 // Logo fallback
 $logoPath = ($logo && file_exists($logo->getCaminho()))
     ? $logo->getCaminho()
     : "https://static.vecteezy.com/ti/vetor-gratis/p1/5538023-forma-simples-montanha-preto-branco-circulo-logo-simbolo-icone-design-grafico-ilustracao-ideia-criativo-vetor.jpg";
-
 ?>
-
 
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -94,29 +107,31 @@ $logoPath = ($logo && file_exists($logo->getCaminho()))
     <link rel="stylesheet" href="../css/styles3.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="../css/graficos.css">
-
 </head>
 
 <body>
     <div class="container">
         <header class="header">
-            <div class="logo">
-                <a href="configuracao.php">
-                    <img src="<?= $logoPath ?>" alt="Logo">
-                </a>
+            <div class="buttonelogo">
                 <div class="menu-toggle">
                     <i class="fas fa-bars"></i>
                 </div>
+                <div class="logo">
+                    <a href="configuracao.php">
+                        <img src="<?= $logoPath ?>" alt="Logo">
+                    </a>
+                </div>
             </div>
+
+
             <div class="title">
-                <h1> <?= $empresa ? $empresa->getNome() : "Gestão & Solução" ?></h1>
+                <h1><?= $empresa ? $empresa->getNome() : "Gestão & Solução" ?></h1>
             </div>
             <div class="search-bar">
                 <i class="fas fa-search"></i>
                 <input type="text" placeholder="Pesquisa">
             </div>
         </header>
-
 
         <aside class="sidebar">
             <?php foreach ($campos as $campo): ?>
@@ -135,9 +150,7 @@ $logoPath = ($logo && file_exists($logo->getCaminho()))
             </div>
         </aside>
 
-
         <main class="main-content">
-
             <!-- modulos -->
             <ul>
                 <?php foreach ($modulos as $modulo): ?>
@@ -152,22 +165,19 @@ $logoPath = ($logo && file_exists($logo->getCaminho()))
 
                         <div class="profile-grid">
                             <?php
-                            // Puxa todos os submódulos do módulo
                             $submodulos = $submoduloDAO->getPorIdModulo($_GET['id_modulo']);
-
                             foreach ($submodulos as $submodulo):
-                                // Puxa todos os valores/itens do submodulo
                                 $valores = $valorDAO->getBySubModulos($submodulo->getId());
                             ?>
                                 <div class="profile-group">
-                                    <label for="nome"><?= $submodulo->getNome(); ?></label>
-                                    <input type="text" id="nome" value="<?php
-                                                                        $valoresText = [];
-                                                                        foreach ($valores as $valor) {
-                                                                            $valoresText[] = $valor->getValor();
-                                                                        }
-                                                                        echo implode(" | ", $valoresText); // separa itens com "|"
-                                                                        ?>" readonly>
+                                    <label><?= $submodulo->getNome(); ?></label>
+                                    <input type="text" value="<?php
+                                                                $valoresText = [];
+                                                                foreach ($valores as $valor) {
+                                                                    $valoresText[] = $valor->getValor();
+                                                                }
+                                                                echo implode(" | ", $valoresText);
+                                                                ?>" readonly>
                                 </div>
                             <?php endforeach; ?>
                         </div>
@@ -184,130 +194,89 @@ $logoPath = ($logo && file_exists($logo->getCaminho()))
                 <?php endif; ?>
             </div>
 
-
-            <!-- adicionar campo -->
-
             <?php if (isset($_GET['id'])): ?>
                 <a href="acoes/Adicionarmodulo.php?id_campo=<?= $_GET['id']; ?>">Adicionar</a>
             <?php endif; ?>
-
-
         </main>
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
-
         document.addEventListener('DOMContentLoaded', () => {
-            const toggleBtn = document.querySelector('.menu-toggle');
-            const sidebar = document.querySelector('.sidebar');
-            const main = document.querySelector('.main-content');
+    const toggleBtn = document.querySelector('.menu-toggle');
+    const sidebar = document.querySelector('.sidebar');
 
-            if (!toggleBtn || !sidebar || !main) return; // se faltar algo, sai sem erro
-
-            toggleBtn.addEventListener('click', (e) => {
-                // alterna a classe que seu CSS utiliza: "closed"
-                sidebar.classList.toggle('closed');
-
-                // fallback: ajusta margem do main via inline style caso o selector ~ não funcione
-                if (sidebar.classList.contains('closed')) {
-                    main.style.marginLeft = '0';
-                    toggleBtn.setAttribute('aria-expanded', 'false');
-                } else {
-                    main.style.marginLeft = ''; // retorna ao valor do CSS (margin-left: 240px)
-                    toggleBtn.setAttribute('aria-expanded', 'true');
-                }
-            });
-
-            // opcional: fecha o sidebar ao clicar fora (útil em mobile)
-            document.addEventListener('click', (evt) => {
-                if (window.innerWidth <= 768) {
-                    const target = evt.target;
-                    if (!sidebar.contains(target) && !toggleBtn.contains(target) && !sidebar.classList.contains('closed')) {
-                        sidebar.classList.add('closed');
-                        main.style.marginLeft = '';
-                        toggleBtn.setAttribute('aria-expanded', 'false');
-                    }
-                }
-            });
-        });
-
-        // graficos 
-
-
-        <?php
-        // Pegar submodulos com itens
-        $submodulos = $submoduloDAO->getSubmodulosComItens($_GET['id_modulo']);
-
-        // Array para agrupar nomes iguais
-        $graficoValores = [];
-
-        foreach ($submodulos as $submodulo) {
-            $nome = $submodulo->getNomeSubmodulo();
-            $valor = $submodulo->getNomeItem();
-
-            if (is_numeric($valor)) {
-                if (!isset($graficoValores[$nome])) {
-                    $graficoValores[$nome] = 0;
-                }
-                $graficoValores[$nome] += $valor; // soma os valores iguais
-            }
+    toggleBtn.addEventListener('click', () => {
+        if (window.innerWidth <= 1024) {
+            sidebar.classList.toggle('open'); // alterna no celular
+        } else {
+            sidebar.classList.toggle('closed'); // alterna no desktop
         }
+    });
 
-        // Separar labels e data para o Chart.js
-        $labels = array_keys($graficoValores);
-        $data = array_values($graficoValores);
-        ?>
+    // opcional: fechar sidebar ao redimensionar
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 1024) {
+            sidebar.classList.remove('open');
+            sidebar.classList.remove('closed'); // garante estado desktop
+        } else {
+            sidebar.classList.remove('closed'); // garante estado mobile fechado
+        }
+    });
+});
 
+    </script>
 
-        document.addEventListener("DOMContentLoaded", () => {
-            const ctx = document.getElementById('myChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: <?= json_encode($labels) ?>,
-                    datasets: [{
-                        label: 'Media',
-                        data: <?= json_encode($data) ?>,
-                        backgroundColor: 'rgba(0, 13, 131, 0.78)',
-                        borderColor: 'rgb(214, 18, 0)',
-                        borderWidth: 2,
-                        borderRadius: 5
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            labels: {
-                                color: "#fff"
-                            }
-                        }
+    <?php if (isset($_GET['id_modulo'])): ?>
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                const ctx = document.getElementById('myChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: <?= json_encode($labels) ?>,
+                        datasets: [{
+                            label: 'Média',
+                            data: <?= json_encode($data) ?>,
+                            backgroundColor: 'rgba(0, 13, 131, 0.78)',
+                            borderColor: 'rgb(214, 18, 0)',
+                            borderWidth: 2,
+                            borderRadius: 5
+                        }]
                     },
-                    scales: {
-                        x: {
-                            ticks: {
-                                color: "#fff"
-                            },
-                            grid: {
-                                color: "rgba(255,255,255,0.2)"
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                labels: {
+                                    color: "#fff"
+                                }
                             }
                         },
-                        y: {
-                            ticks: {
-                                color: "#fff"
+                        scales: {
+                            x: {
+                                ticks: {
+                                    color: "#fff"
+                                },
+                                grid: {
+                                    color: "rgba(255,255,255,0.2)"
+                                }
                             },
-                            grid: {
-                                color: "rgba(255,255,255,0.2)"
+                            y: {
+                                ticks: {
+                                    color: "#fff"
+                                },
+                                grid: {
+                                    color: "rgba(255,255,255,0.2)"
+                                }
                             }
                         }
                     }
-                }
+                });
             });
-        });
-    </script>
-    
-
+        </script>
+    <?php endif; ?>
 </body>
 
 </html>

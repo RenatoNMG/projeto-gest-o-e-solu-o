@@ -1,8 +1,8 @@
 /* Estilos Gerais */
 body {
     font-family: Arial, sans-serif;
-    background-color: #f0f2f5; /* Fundo do corpo mais claro */
-    color: #333333; /* Cor do texto geral, para legibilidade em fundo claro */
+    background-color: #f0f2f5;
+    color: #333;
     margin: 0;
     padding: 0;
     display: flex;
@@ -11,14 +11,22 @@ body {
     min-height: 100vh;
 }
 
+/* Container principal */
 .container {
-    background: linear-gradient(180deg, #E5E5E5 0%, #BDBDBD 100%); /* Gradiente do container mais suave */
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 90%;
+    background: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 95%;
     max-width: 800px;
     box-sizing: border-box;
+}
+
+/* Título */
+.container h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #0d47a1;
 }
 
 /* Estilos dos Cards */
@@ -31,75 +39,101 @@ body {
 }
 
 .card {
-    background: linear-gradient(90deg, #CDE9F4 0%, #A0BCC9 100%); /* Gradiente do cartão mais leve */
+    background: linear-gradient(90deg, #CDE9F4 0%, #A0BCC9 100%);
     border-radius: 8px;
     padding: 20px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    flex-basis: calc(50% - 10px);
+    flex: 1 1 calc(50% - 20px);
     box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
     text-align: center;
     transition: all 0.3s ease;
 }
 
 .card:hover {
-    background: linear-gradient(90deg, #B5D9E8 0%, #89A3B0 100%); /* Gradiente de hover mais suave */
+    background: linear-gradient(90deg, #B5D9E8 0%, #89A3B0 100%);
 }
 
 .card-title {
-    margin-top: 0;
     font-size: 1.2em;
-    color: #0d47a1; /* Título com cor forte para destaque */
+    font-weight: bold;
+    color: #0d47a1;
+    margin-bottom: 10px;
 }
 
-/* Estilos dos Botões e Links */
+/* Formulários */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1em;
+    box-sizing: border-box;
+    transition: border-color 0.3s;
+}
+
+input:focus, select:focus, textarea:focus {
+    border-color: #1890ff;
+    outline: none;
+}
+
+/* Botões */
 .btn-submit,
 .btn-link {
     display: inline-block;
-    padding: 10px 20px;
-    text-decoration: none;
-    border-radius: 5px;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    padding: 12px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
     text-align: center;
-    margin-top: 10px;
-    width: 100%;
-    box-sizing: border-box;
-    color: #ffffff; /* Cor do texto do botão clara */
+    font-size: 1em;
+    transition: all 0.3s ease;
 }
 
 .btn-submit {
     background-color: #1890ff;
-    border: none;
+    color: #fff;
 }
 
 .btn-submit:hover {
-    background-color: #e7e7e7;
-    color: #1890ff;
-}
-
-.action-links {
-    display: flex;
-    justify-content: space-around;
-    gap: 10px;
+    background-color: #0d47a1;
 }
 
 .btn-link {
     background-color: #bdc3c7;
-    color: #333333; /* Cor do texto para legibilidade */
-    border: none;
+    color: #333;
 }
 
 .btn-link:hover {
     background-color: #91A1A8;
-    color: #ffffff;
+    color: #fff;
 }
 
-/* Media Queries para Responsividade */
-@media (max-width: 600px) {
+/* Ações */
+.action-links {
+    display: flex;
+    justify-content: space-around;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
     .card {
-        flex-basis: 100%;
+        flex: 1 1 100%;
+    }
+
+    .action-links {
+        flex-direction: column;
     }
 }

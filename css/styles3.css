@@ -8,7 +8,6 @@
     color: #fff;
 }
 
-
 .container {
     width: 100%;
     height: 100%;
@@ -18,7 +17,6 @@
 
 /* --- Header --- */
 .header {
-    grid-area: header;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -31,14 +29,12 @@
     min-height: 70px;
     gap: 0.5rem;
     flex-wrap: nowrap;
-
-    position: fixed; /* fixa o header no topo */
-    top: 0;          /* topo da tela */
+    position: fixed;
+    top: 0;
     left: 0;
-    width: 100%;     /* ocupa toda a largura */
-    z-index: 100;    /* garante que fique acima dos outros elementos */
+    width: 100%;
+    z-index: 100;
 }
-
 
 .logo img {
     width: 50px;
@@ -122,13 +118,18 @@
     scrollbar-width: thin;
     scrollbar-color: #bdc3c7 transparent;
     position: fixed;
-    top: 70px; /* sempre abaixo do header */
+    top: 70px;
     left: 0;
     width: 240px;
     height: calc(100% - 70px);
     transform: translateX(0);
-    transition: 0.4s ease-in-out;
-    z-index: 10;
+    /* aberta por padrão */
+    transition: transform 0.4s ease-in-out;
+    z-index: 100;
+}
+
+.sidebar.closed {
+    transform: translateX(-100%);
 }
 
 .sidebar a {
@@ -184,21 +185,16 @@
     color: #fff;
 }
 
-.sidebar.closed {
-    transform: translateX(-100%);
-}
-
 /* --- Main Content --- */
 .main-content {
-    margin-left: 240px; /* deixa espaço para a sidebar */
+    margin-left: 240px;
     padding: 20px;
     font-family: Arial, sans-serif;
     transition: margin-left 0.4s ease-in-out;
     margin-top: 70px;
 }
 
-
-.sidebar.closed ~ .main-content {
+.sidebar.closed~.main-content {
     margin-left: 0;
 }
 
@@ -265,39 +261,16 @@
     background-color: #e7e7e7;
 }
 
-/* --- Responsividade --- */
-@media (max-width: 768px) {
-    .search-bar {
-        width: 100%;
-        max-width: 400px;
-        margin: 0 auto;
-    }
-
-    .main-content {
-        margin-left: 0; /* em telas pequenas sidebar cobre */
-    }
-
-    .main-content ul {
-        flex-direction: column;
-        gap: 15px;
-    }
-
-    .main-content li {
-        flex: 1 1 100%;
-    }
-}
-
 /* ====== PROFILE ====== */
 .profile-box {
     padding: 20px;
     background: linear-gradient(145deg, #2c3e50, #34495e);
     border-radius: 12px;
-    box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
     color: #fff;
-    
 }
 
-.profile-title{
+.profile-title {
     margin-bottom: 15px;
 }
 
@@ -342,39 +315,77 @@
     background-color: #0056b3;
 }
 
-@media (max-width: 768px) {
-    .profile-grid {
-        grid-template-columns: 1fr;
-    }
-}
 .chart-container {
-  flex: 1 1 calc(33% - 20px);
-  border-radius: 10px;
-  padding: 20px;
-  background: linear-gradient(90deg, #91A1A8 0%, #113048 100%);
-  color: #fff;
-  font-weight: bold;
-  text-align: center;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  margin: 10px 0;
-
+    flex: 1 1 calc(33% - 20px);
+    border-radius: 10px;
+    padding: 20px;
+    background: linear-gradient(90deg, #91A1A8 0%, #113048 100%);
+    color: #fff;
+    font-weight: bold;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    margin: 10px 0;
 }
-
 
 .chart-container canvas {
     width: 100% !important;
     height: auto !important;
-
-    
 }
-
 
 .chart-title {
-  margin-bottom: 15px;
-  font-size: 18px;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+    margin-bottom: 15px;
+    font-size: 18px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
 }
 
-.sidebar.closed + .main-content {
-    margin-left: 0;
+.buttonelogo {
+    display: flex;
+    gap: 130px;
+}
+
+/* ====== RESPONSIVIDADE ====== */
+@media (max-width: 1024px) {
+    .sidebar {
+        transform: translateX(-100%);
+        /* começa fechada no tablet */
+    }
+
+    /* Sidebar aberta no celular */
+    .sidebar.open {
+        transform: translateX(0) !important;
+    }
+
+
+    .main-content {
+        margin-left: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .search-bar {
+        width: 100%;
+        max-width: 400px;
+        margin: 0 auto;
+    }
+
+    .main-content {
+        margin-left: 0;
+    }
+
+    .main-content ul {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .main-content li {
+        flex: 1 1 100%;
+    }
+
+    .profile-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .title h1 {
+        display: none;
+    }
 }
