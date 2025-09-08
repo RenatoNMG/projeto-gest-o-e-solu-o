@@ -102,3 +102,12 @@ CREATE TABLE IF NOT EXISTS valor_submodulo (
     id_submodulo INT NOT NULL,
     FOREIGN KEY (id_submodulo) REFERENCES submodulo(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
+CREATE TABLE IF NOT EXISTS agenda (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_empresa INT NOT NULL,
+    titulo VARCHAR(255) NOT NULL,
+    descricao TEXT,
+    data DATE NOT NULL,
+    hora TIME DEFAULT NULL,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

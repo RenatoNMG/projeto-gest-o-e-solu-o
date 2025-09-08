@@ -93,8 +93,8 @@ $logoPath = ($logo && file_exists($logo->getCaminho()))
 
 
                     <div class="profile-text">
-                        <span class="profile-name">Freedom</span>
-                        <span class="profile-email">freedom@gmail.com</span>
+                        <span class="profile-name"><?= $empresa->getNome(); ?></span>
+                        <span class="profile-email"><?= $empresa->getEmail(); ?></span>
                     </div>
                 </div>
                 <a href="atualizatLogo.php"><button class="edit-button">

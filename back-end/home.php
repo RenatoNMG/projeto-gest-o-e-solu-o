@@ -112,6 +112,8 @@ $logoPath = ($logo && file_exists($logo->getCaminho())) ? $logo->getCaminho()
                 <div class="logo">
                     <a href="configuracao.php"><img src="<?= $logoPath ?>" alt="Logo"></a>
                 </div>
+                <button id="abrirAgendaBtn">Abrir Agenda</button>
+
             </div>
             <div class="title">
                 <h1><?= $empresa ? $empresa->getNome() : "Gestão & Solução" ?></h1>
@@ -141,6 +143,33 @@ $logoPath = ($logo && file_exists($logo->getCaminho())) ? $logo->getCaminho()
         </aside>
 
         <main class="main-content">
+            <div id="agendaContainer" style="display:none;">
+                <?php include 'agenda/agenda.php'; ?>
+            </div>
+
+            <script>
+                document.getElementById('abrirAgendaBtn').onclick = function() {
+                    const container = document.getElementById('agendaContainer');
+                    if (container.style.display === 'none' || container.style.display === '') {
+                        container.style.display = 'block';
+                    } else {
+                        container.style.display = 'none';
+                    }
+                }
+
+                window.addEventListener('DOMContentLoaded', () => {
+                    const container = document.getElementById('agendaContainer');
+                    const urlParams = new URLSearchParams(window.location.search);
+
+                    // Abre a agenda se a URL tiver mes+ano ou openAgenda=1
+                    if ((urlParams.has('mes') && urlParams.has('ano')) || urlParams.has('openAgenda')) {
+                        container.style.display = 'block';
+                    }
+                });
+            </script>
+
+
+
             <ul>
                 <?php foreach ($modulos as $moduloItem): ?>
                     <li><a href="?id_modulo=<?= $moduloItem->getId(); ?>"><?= $moduloItem->getNome(); ?></a></li>
@@ -231,37 +260,37 @@ $logoPath = ($logo && file_exists($logo->getCaminho())) ? $logo->getCaminho()
 
     <!-- Script do Toggle da Sidebar -->
     <script>
-   document.addEventListener('DOMContentLoaded', () => {
-    const toggleBtn = document.querySelector('.menu-toggle');
-    const sidebar = document.querySelector('.sidebar');
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggleBtn = document.querySelector('.menu-toggle');
+            const sidebar = document.querySelector('.sidebar');
 
-    // Função para alternar sidebar
-    const toggleSidebar = () => {
-        if (window.innerWidth <= 1024) {
-            sidebar.classList.toggle('open'); // mobile/tablet
-        } else {
-            sidebar.classList.toggle('closed'); // desktop
-        }
-    };
+            // Função para alternar sidebar
+            const toggleSidebar = () => {
+                if (window.innerWidth <= 1024) {
+                    sidebar.classList.toggle('open'); // mobile/tablet
+                } else {
+                    sidebar.classList.toggle('closed'); // desktop
+                }
+            };
 
-    toggleBtn.addEventListener('click', toggleSidebar);
+            toggleBtn.addEventListener('click', toggleSidebar);
 
-    // Ajusta sidebar ao redimensionar
-    const ajustarSidebar = () => {
-        if (window.innerWidth > 1024) {
-            sidebar.classList.remove('open');
-        } else {
-            sidebar.classList.remove('closed');
-        }
-    };
+            // Ajusta sidebar ao redimensionar
+            const ajustarSidebar = () => {
+                if (window.innerWidth > 1024) {
+                    sidebar.classList.remove('open');
+                } else {
+                    sidebar.classList.remove('closed');
+                }
+            };
 
-    window.addEventListener('resize', ajustarSidebar);
+            window.addEventListener('resize', ajustarSidebar);
 
-    // Inicializa sidebar corretamente ao carregar
-    ajustarSidebar();
-});
-
+            // Inicializa sidebar corretamente ao carregar
+            ajustarSidebar();
+        });
     </script>
 
 </body>
+
 </html>
