@@ -15,7 +15,8 @@ if(isset($_POST['add_event'])) {
     $stmt = $conn->prepare("INSERT INTO agenda (id_empresa, titulo, descricao, data, hora) VALUES (?, ?, ?, ?, ?)");
     $stmt->execute([$id_empresa, $titulo, $descricao, $data, $hora]);
 
-
+    // Redirecionar mantendo mês/ano e forçando a agenda aberta
+    
 }
 
 // Definir mês e ano (GET ou atual)
@@ -45,8 +46,8 @@ if($mes_proximo > 12){ $mes_proximo = 1; $ano_proximo++; }
 
 <!-- Conteúdo do módulo Agenda -->
 <style>
-/* Calendário */
-#calendar { 
+/* Agenda exclusiva */
+.agenda-calendar { 
     display:grid; 
     grid-template-columns: repeat(7, 1fr); 
     gap:5px; 
@@ -55,7 +56,7 @@ if($mes_proximo > 12){ $mes_proximo = 1; $ano_proximo++; }
     max-width:600px; 
 }
 
-.day { 
+.agenda-day { 
     background:#42464b; 
     padding:10px; 
     cursor:pointer; 
@@ -63,26 +64,26 @@ if($mes_proximo > 12){ $mes_proximo = 1; $ano_proximo++; }
     border-radius:5px; 
     min-height:60px; 
     position:relative; 
-    color:#f5f5f5; /* texto mais claro para contraste */
+    color:#f5f5f5;
 }
 
-.day.today { 
+.agenda-day.today { 
     background:#5865f2; 
     color:#fff;
 }
 
-.event { 
+.agenda-event { 
     font-size:10px; 
     background:#ffcc00; 
-    color:#111; /* texto escuro */
+    color:#111; 
     border-radius:3px; 
     margin-top:3px; 
     padding:1px 3px; 
     display:block; 
 }
 
-/* Modal */
-.modal { 
+/* Modal exclusivo */
+.agenda-modal { 
     display:none; 
     position:fixed; 
     top:0; 
@@ -92,17 +93,18 @@ if($mes_proximo > 12){ $mes_proximo = 1; $ano_proximo++; }
     background:rgba(0,0,0,0.7); 
     justify-content:center; 
     align-items:center; 
+    z-index:1000;
 }
 
-.modal-content { 
+.agenda-modal-content { 
     background:#fff; 
-    color:#111; /* texto escuro */
+    color:#111; 
     padding:20px; 
     border-radius:5px; 
     width:300px; 
 }
 
-.modal-content label { 
+.agenda-modal-content label { 
     color:#111; 
     display:block; 
     margin-top:10px; 
@@ -110,8 +112,8 @@ if($mes_proximo > 12){ $mes_proximo = 1; $ano_proximo++; }
     font-weight:bold;
 }
 
-.modal-content input,
-.modal-content textarea { 
+.agenda-modal-content input,
+.agenda-modal-content textarea { 
     color:#111; 
     background:#f0f0f0; 
     border:1px solid #ccc; 
@@ -121,13 +123,13 @@ if($mes_proximo > 12){ $mes_proximo = 1; $ano_proximo++; }
     box-sizing:border-box; 
 }
 
-.close { 
+.agenda-close { 
     cursor:pointer; 
     float:right; 
     font-weight:bold; 
 }
 
-button.nav, .modal-content button { 
+button.agenda-nav, .agenda-modal-content button { 
     background:#5865f2; 
     color:#fff; 
     border:none; 
@@ -136,34 +138,34 @@ button.nav, .modal-content button {
     cursor:pointer; 
 }
 
-button.nav:hover, .modal-content button:hover { 
+button.agenda-nav:hover, .agenda-modal-content button:hover { 
     background:#4449c5; 
 }
 
-/* Lista de eventos do mês */
-#event-list { 
+/* Lista de eventos */
+.agenda-event-list { 
     width:100%; 
     max-width:600px; 
     margin-top:20px; 
     background:#42464b; 
     padding:10px; 
     border-radius:5px; 
-    color:#f5f5f5; /* texto mais claro */
+    color:#f5f5f5; 
 }
 
-#event-list ul { 
+.agenda-event-list ul { 
     list-style:none; 
     padding:0; 
     margin:0; 
 }
 
-#event-list li { 
+.agenda-event-list li { 
     margin-bottom:5px; 
     cursor:pointer; 
     color:#f5f5f5; 
 }
 
-#event-list li:hover { 
+.agenda-event-list li:hover { 
     background:#5865f2; 
     border-radius:3px; 
     padding:2px; 
@@ -176,12 +178,12 @@ button.nav:hover, .modal-content button:hover {
 
     <!-- Navegação de meses -->
     <div>
-        <a href="?mes=<?php echo $mes_anterior; ?>&ano=<?php echo $ano_anterior; ?>"><button class="nav">&lt; Mês Anterior</button></a>
-        <a href="?mes=<?php echo $mes_proximo; ?>&ano=<?php echo $ano_proximo; ?>"><button class="nav">Próximo Mês &gt;</button></a>
+        <a href="?mes=<?php echo $mes_anterior; ?>&ano=<?php echo $ano_anterior; ?>&openAgenda=1"><button class="agenda-nav">&lt; Mês Anterior</button></a>
+        <a href="?mes=<?php echo $mes_proximo; ?>&ano=<?php echo $ano_proximo; ?>&openAgenda=1"><button class="agenda-nav">Próximo Mês &gt;</button></a>
     </div>
 
-    <!-- Lista de eventos do mês -->
-    <div id="event-list">
+    <!-- Lista de eventos -->
+    <div class="agenda-event-list">
         <h4>Eventos do Mês</h4>
         <?php if(count($eventos) > 0): ?>
             <ul>
@@ -197,11 +199,11 @@ button.nav:hover, .modal-content button:hover {
         <?php endif; ?>
     </div>
 
-    <div id="calendar"></div>
+    <div id="calendar" class="agenda-calendar"></div>
 
-    <div class="modal" id="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal()">&times;</span>
+    <div class="agenda-modal" id="modal">
+        <div class="agenda-modal-content">
+            <span class="agenda-close" onclick="closeModal()">&times;</span>
             <h3>Adicionar Evento</h3>
             <form method="POST">
                 <input type="hidden" name="data" id="event_date">
@@ -229,7 +231,7 @@ const diasMes = new Date(ano, mes+1, 0).getDate();
 const hoje = new Date();
 for(let i=1; i<=diasMes; i++){
     const diaEl = document.createElement('div');
-    diaEl.classList.add('day');
+    diaEl.classList.add('agenda-day');
 
     const dataString = ano+'-'+String(mes+1).padStart(2,'0')+'-'+String(i).padStart(2,'0');
 
@@ -244,7 +246,7 @@ for(let i=1; i<=diasMes; i++){
     if(eventos[dataString]){
         eventos[dataString].forEach(ev => {
             const evEl = document.createElement('span');
-            evEl.classList.add('event');
+            evEl.classList.add('agenda-event');
             evEl.textContent = ev.titulo;
             diaEl.appendChild(evEl);
         });
@@ -260,7 +262,7 @@ for(let i=1; i<=diasMes; i++){
 }
 
 // Abrir modal ao clicar na lista de eventos
-document.querySelectorAll('#event-list li').forEach(li => {
+document.querySelectorAll('.agenda-event-list li').forEach(li => {
     li.onclick = () => {
         const data = li.getAttribute('data-date');
         document.getElementById('event_date').value = data;
@@ -271,4 +273,11 @@ document.querySelectorAll('#event-list li').forEach(li => {
 function closeModal(){
     document.getElementById('modal').style.display = 'none';
 }
+
+// Se URL tiver openAgenda=1, garante que agenda abre
+window.addEventListener('DOMContentLoaded', () => {
+    if (new URLSearchParams(window.location.search).has('openAgenda')) {
+        document.getElementById('calendar').style.display = 'grid';
+    }
+});
 </script>

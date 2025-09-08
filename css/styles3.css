@@ -416,3 +416,25 @@
         display: none;
     }
 }
+
+#abrirAgendaBtn {
+    background-color: #5865f2; /* azul principal */
+    color: #fff; /* texto branco */
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+}
+
+#abrirAgendaBtn:hover {
+    background-color: #4449c5; /* azul mais escuro no hover */
+    transform: translateY(-2px);
+}
+
+#abrirAgendaBtn:active {
+    background-color: #3639a0; /* azul ainda mais escuro ao clicar */
+    transform: translateY(0);
+}
